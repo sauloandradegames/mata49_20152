@@ -10,14 +10,27 @@
 %include "asm_io.inc"
 
 segment .data
-	testificate dd 9
+	testificate  DD 220 ;1 2 3 4 6 12 = 28
+	testificate2 DD 284 ;1 2 4 7 14 28 = 56
+	testificate3 DD 10
+	;12 excessivo
+	;28 perfeito
+	;10 deficiente
 	
 segment .bss
-	vetor_primos            resd 100
-	vetor_fatores_primos    resd 100
-	vetor_divisores         resd 100
-	param_crivo             resd 1
-	param_divisor           resd 1
+	vetor_entrada           RESD 10
+	vetor_soma_divisores    RESD 10
+	
+	vetor_primos            RESD 100
+	vetor_divisores         RESD 100
+	vetor_candidatos        RESD 100 ; armazena candidatos a numeros amigaveis ou sociaveis
+	
+	i_vetor_soma_divisores  RESD 1
+	param_crivo             RESD 1
+	param_divisor           RESD 1
+	param_soma              RESD 1
+	divisor_param1          RESD 1   ; armazena soma dos divisores do 1o parametro de amigavel()
+	divisor_param2          RESD 1   ; armazena soma dos divisores do 2o parametro de amigavel()
 
 segment .text
 	GLOBAL asm_main
@@ -27,15 +40,152 @@ segment .text
 ;=======================================================================
 
 ;-----------------------------------------------------------------------
+; requer empilhar 1 valor na pilha
+excessivo:
+	ENTER 4, 0
+	
+	MOV EBX, [EBP + 8]
+	CALL soma_divisores
+	
+	CMP EAX, [EBP + 8]
+	JG eh_excessivo
+	JMP nao_excessivo
+	
+eh_excessivo:
+	MOV EAX, 1
+	JMP end
+
+nao_excessivo:
+	MOV EAX, 0
+	JMP end
+;-----------------------------------------------------------------------
+
+;-----------------------------------------------------------------------
+; requer empilhar 1 valor na pilha
+perfeito:
+	ENTER 4, 0
+	
+	MOV EBX, [EBP + 8]
+	CALL soma_divisores
+	
+	CMP EAX, [EBP + 8]
+	JZ eh_perfeito
+	JMP nao_perfeito
+	
+eh_perfeito:
+	MOV EAX, 1
+	JMP end
+
+nao_perfeito:
+	MOV EAX, 0
+	JMP end
+;-----------------------------------------------------------------------
+
+;-----------------------------------------------------------------------
+; requer empilhar 1 valor na pilha
+deficiente:
+	ENTER 4, 0
+	
+	MOV EBX, [EBP + 8]
+	CALL soma_divisores
+	
+	CMP EAX, [EBP + 8]
+	JL eh_deficiente
+	JMP nao_deficiente
+	
+eh_deficiente:
+	MOV EAX, 1
+	JMP end
+
+nao_deficiente:
+	MOV EAX, 0
+	JMP end
+;-----------------------------------------------------------------------
+
+;-----------------------------------------------------------------------
+; requer empilhar 2 valores na pilha
+amigavel:
+	ENTER 8, 0
+	
+	MOV EBX, [EBP + 12]
+	CALL soma_divisores
+	MOV [divisor_param1], EAX
+	
+	MOV EBX, [EBP + 8]
+	CALL soma_divisores
+	MOV [divisor_param2], EAX
+	
+	MOV EBX, [EBP + 12]
+	CMP EBX, [divisor_param2]
+	JNZ nao_amigavel
+	MOV EBX, [EBP + 8]
+	CMP EBX, [divisor_param1]
+	JNZ nao_amigavel
+	JMP eh_amigavel
+	
+nao_amigavel:
+	MOV EAX, 0
+	JMP end
+	
+eh_amigavel:
+	MOV EAX, 1
+	JMP end
+	
+;[ebp + 12]\/[vsd + 4] [220] (220)
+;[ebp +  8]/\[vsd + 0] (284) [284]
+;-----------------------------------------------------------------------
+
+;-----------------------------------------------------------------------
+; recebe como parametro um valor em EBX
+soma_divisores:
+	ENTER 0, 0
+	
+	MOV [param_soma], EBX
+	
+	CALL divisor
+	
+	MOV ESI, vetor_divisores
+	MOV EBX, 0
+	
+somatorio:
+	LODSD
+	CMP EAX, [param_soma]
+	JZ encerra_somatorio
+	ADD EBX, EAX
+	JMP somatorio
+	
+encerra_somatorio:
+	XCHG EBX, EAX
+	JMP end
+;-----------------------------------------------------------------------
+
+;-----------------------------------------------------------------------
 ; recebe como parametro um valor em EBX
 divisor:
-; dado um numero, preencher o vetor de primos
-; dado um numero e o seu vetor de primos, preencher o vetor de fatores primos
-; dado o vetor de fatores primos, preencher o vetor de divisores
 	ENTER 0, 0
 	
 	MOV [param_divisor], EBX
-	CALL crivo
+	MOV EAX, EBX
+	MOV ECX, EBX
+	MOV EDI, vetor_divisores
+	
+	;eax: dividendo / quociente
+	;ecx: divisor
+teste_divisao:
+	MOV EAX, [param_divisor]
+	MOV EDX, 0
+	CDQ
+	IDIV ECX
+	CMP EDX, 0
+	JZ adiciona_divisor
+	LOOP teste_divisao
+	JMP end
+	
+adiciona_divisor:
+	STOSD
+	LOOP teste_divisao
+	JMP end
+
 ;-----------------------------------------------------------------------
 
 
@@ -45,6 +195,7 @@ crivo:
 	ENTER 0, 0
 	
 	MOV EDI, vetor_primos
+	MOV ECX, 0
 
 teste_crivo:
 	MOV [param_crivo], EBX
@@ -56,6 +207,7 @@ teste_crivo:
 	JZ proximo
 	MOV EAX, EBX
 	STOSD
+	INC ECX
 
 proximo:
 	DEC EBX
@@ -65,6 +217,7 @@ proximo:
 ;-----------------------------------------------------------------------
 
 ;-----------------------------------------------------------------------
+; requer empilhar 1 valor na pilha
 primo:
 	ENTER 4, 0
 	
@@ -107,18 +260,28 @@ asm_main:
 	ENTER 0, 0
 	PUSHA
 	
-	MOV EBX, [testificate]
-	CALL crivo
+;	MOV EBX, [testificate2]
+;	CALL soma_divisores
+;	CALL print_int
+;	CALL print_nl
 	
-	MOV ESI, vetor_primos
-	MOV ECX, 10
+	MOV EAX, [testificate]
+	PUSH EAX
+	MOV EAX, [testificate2]
+	PUSH EAX
+	CALL amigavel
 	
-lp:
-	LODSD
 	CALL print_int
 	CALL print_nl
-	LOOP lp
-	JMP end
+	
+;	MOV ECX, 10
+;	MOV ESI, vetor_divisores
+;	
+;lp:
+;	LODSD
+;	CALL print_int
+;	CALL print_nl
+;	LOOP lp
 	
 end:
 	LEAVE

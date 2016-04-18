@@ -3,17 +3,15 @@
 Repositorio do trabalho pratico de MATA49 - Programacao de software basico.
 
 - Em andamento
-	- Divisor: apontar ECX para o ultimo elemento do vetor
-	- Divisor: gerar fatores primos
-	- Divisor: gerar divisores
+	- Implementar modulos
 
 - Coisas a fazer:
-- [ ] Implementar modulo de divisor
+- [X] Implementar modulo de divisor
 - [X] Implementar modulo de primo
-- [ ] Implementar modulo de numero excessivo
-- [ ] Implementar modulo de numero perfeito
-- [ ] Implementar modulo de numero deficiente
-- [ ] Implementar modulo de numero amigavel
+- [X] Implementar modulo de numero excessivo
+- [X] Implementar modulo de numero perfeito
+- [X] Implementar modulo de numero deficiente
+- [X] Implementar modulo de numero amigavel
 - [ ] Implementar modulo de numero sociavel
 - [ ] Implementar modulo de sequencia de fibonnaci
 - [ ] Implementar modulo de fatorial
