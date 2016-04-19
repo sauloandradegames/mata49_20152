@@ -10,6 +10,11 @@
 %include "asm_io.inc"
 
 segment .data
+	text_prompt1 DB "Insira 10 numeros.", 0
+	espaco       DB " ", 0
+	
+	indice       DD 0 ; Armazena indice do vetor
+
 	testificate  DD 220 ;1 2 3 4 6 12 = 28
 	testificate2 DD 284 ;1 2 4 7 14 28 = 56
 	testificate3 DD 10
@@ -25,12 +30,12 @@ segment .bss
 	vetor_divisores         RESD 100
 	vetor_candidatos        RESD 100 ; armazena candidatos a numeros amigaveis ou sociaveis
 	
-	i_vetor_soma_divisores  RESD 1
 	param_crivo             RESD 1
 	param_divisor           RESD 1
 	param_soma              RESD 1
 	divisor_param1          RESD 1   ; armazena soma dos divisores do 1o parametro de amigavel()
 	divisor_param2          RESD 1   ; armazena soma dos divisores do 2o parametro de amigavel()
+	contador                RESD 1   ; armazena valor de ECX durante loop calcula_divisores
 
 segment .text
 	GLOBAL asm_main
@@ -40,7 +45,13 @@ segment .text
 ;=======================================================================
 
 ;-----------------------------------------------------------------------
-; requer empilhar 1 valor na pilha
+; indica se o parametro de entrada eh um numero excessivo
+; (soma dos divisores > entrada)
+; entrada:
+;    1 valor na pilha
+; saida:
+;    EAX = 0, se o numero nao eh excessivo
+;    EAX = 1, se o numero eh excessivo
 excessivo:
 	ENTER 4, 0
 	
@@ -61,7 +72,13 @@ nao_excessivo:
 ;-----------------------------------------------------------------------
 
 ;-----------------------------------------------------------------------
-; requer empilhar 1 valor na pilha
+; indica se o parametro de entrada eh um numero perfeito
+; (soma dos divisores = entrada)
+; entrada:
+;    1 valor na pilha
+; saida:
+;    EAX = 0, se o numero nao eh perfeito
+;    EAX = 1, se o numero eh perfeito
 perfeito:
 	ENTER 4, 0
 	
@@ -82,7 +99,13 @@ nao_perfeito:
 ;-----------------------------------------------------------------------
 
 ;-----------------------------------------------------------------------
-; requer empilhar 1 valor na pilha
+; indica se o parametro de entrada eh um numero deficiente
+; (soma dos divisores < entrada)
+; entrada:
+;    1 valor na pilha
+; saida:
+;    EAX = 0, se o numero nao eh deficiente
+;    EAX = 1, se o numero eh deficiente
 deficiente:
 	ENTER 4, 0
 	
@@ -103,7 +126,14 @@ nao_deficiente:
 ;-----------------------------------------------------------------------
 
 ;-----------------------------------------------------------------------
-; requer empilhar 2 valores na pilha
+; indica se dois argumentos de entrada sao amigaveis
+; (soma dos divisores de n1 = n2) &&
+; (soma dos divisores de n2 = n1)
+; entrada:
+;    2 valores na pilha
+; saida:
+;    EAX = 0, se os numeros nao sao amigaveis
+;    EAX = 1, se os numeros sao amigaveis
 amigavel:
 	ENTER 8, 0
 	
@@ -136,7 +166,11 @@ eh_amigavel:
 ;-----------------------------------------------------------------------
 
 ;-----------------------------------------------------------------------
-; recebe como parametro um valor em EBX
+; retorna a soma dos divisores do argumento de entrada
+; entrada:
+;    1 valor em EBX
+; saida:
+;    EAX = soma dos divisores de EBX
 soma_divisores:
 	ENTER 0, 0
 	
@@ -160,7 +194,11 @@ encerra_somatorio:
 ;-----------------------------------------------------------------------
 
 ;-----------------------------------------------------------------------
-; recebe como parametro um valor em EBX
+; retorna os divisores do argumento de entrada
+; entrada:
+;    1 valor em EBX
+; saida:
+;    vetor_divisores = lista dos divisores de EBX
 divisor:
 	ENTER 0, 0
 	
@@ -190,7 +228,11 @@ adiciona_divisor:
 
 
 ;-----------------------------------------------------------------------
-; recebe como parametro um valor em EBX
+; retorna todos os numeros primos entre 0 e o argumento de entrada
+; entrada:
+;    1 valor em EBX
+; saida:
+;    vetor_primos = numeros primos entre 0 e EBX
 crivo:
 	ENTER 0, 0
 	
@@ -217,7 +259,12 @@ proximo:
 ;-----------------------------------------------------------------------
 
 ;-----------------------------------------------------------------------
-; requer empilhar 1 valor na pilha
+; indica se o parametro de entrada eh um numero primo
+; entrada:
+;    1 valor na pilha
+; saida:
+;    EAX = 0, se o numero nao eh primo
+;    EAX = 1, se o numero eh primo
 primo:
 	ENTER 4, 0
 	
@@ -260,28 +307,58 @@ asm_main:
 	ENTER 0, 0
 	PUSHA
 	
-;	MOV EBX, [testificate2]
-;	CALL soma_divisores
-;	CALL print_int
-;	CALL print_nl
-	
-	MOV EAX, [testificate]
-	PUSH EAX
-	MOV EAX, [testificate2]
-	PUSH EAX
-	CALL amigavel
-	
-	CALL print_int
+	;prompt, insira 10 numeros
+	MOV EAX, text_prompt1
+	CALL print_string
 	CALL print_nl
 	
-;	MOV ECX, 10
-;	MOV ESI, vetor_divisores
-;	
-;lp:
-;	LODSD
-;	CALL print_int
-;	CALL print_nl
-;	LOOP lp
+	MOV EDI, vetor_entrada
+	MOV ECX, 10
+	
+	;insira 10 numeros
+ler_numeros:
+	CALL read_int
+	STOSD
+	LOOP ler_numeros
+	
+	MOV ECX, 10
+	CALL print_nl
+	
+	;calcule para cada numero a soma de seus divisores
+calcula_divisores:
+	MOV [contador], ECX
+	MOV EDX, [indice]
+	
+	MOV EBX, [vetor_entrada + EDX]
+	
+	CALL soma_divisores
+
+	MOV EDX, [indice]
+	MOV [vetor_soma_divisores + EDX], EAX
+	
+	ADD EDX, 4
+	MOV [indice], EDX
+	MOV ECX, [contador]
+	LOOP calcula_divisores
+	
+	;entre no menu
+menu:
+	MOV EBX, 0
+	MOV ECX, 10
+	
+lp:
+	MOV EAX, [vetor_entrada + EBX]
+	CALL print_int
+	
+	MOV EAX, espaco
+	CALL print_string
+	
+	MOV EAX, [vetor_soma_divisores + EBX]
+	CALL print_int
+	
+	CALL print_nl
+	ADD EBX, 4
+	LOOP lp
 	
 end:
 	LEAVE
