@@ -23,7 +23,21 @@ segment .data
 	text_menu_opcao8 DB "[8] Fatorial", 0
 	text_menu_opcao9 DB "[9] Sair", 0
 	
+	text_res_excessivo   DB ">> Numeros Excessivos : ", 0
+	text_res_perfeito    DB ">> Numeros Perfeitos  : ", 0
+	text_res_deficiente  DB ">> Numeros Deficientes: ", 0
+	
+	colchete_abre  DB "[ ", 0
+	colchete_fecha DB " ]", 0
+	nulo           DB "---", 0
+	espaco         DB " , ", 0
+	
 	indice       DD 0 ; Armazena indice do vetor
+	indice2      DD 0 ; Armazena indice do vetor
+	
+	vetor_entrada TIMES 10 DD -1
+	vetor_soma_divisores TIMES 10 DD -1
+	vetor_resultado TIMES 10 DD -1
 
 	testificate  DD 220 ;1 2 3 4 6 12 = 28
 	testificate2 DD 284 ;1 2 4 7 14 28 = 56
@@ -33,8 +47,6 @@ segment .data
 	;10 deficiente
 	
 segment .bss
-	vetor_entrada           RESD 10
-	vetor_soma_divisores    RESD 10
 	
 	vetor_primos            RESD 100
 	vetor_divisores         RESD 100
@@ -413,29 +425,185 @@ menu:
 	JZ check_fatorial
 	JMP end
 	
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+	
 check_excessivo:
-	MOV EAX, 10011
+	MOV EAX, text_res_excessivo
+	CALL print_string
+	
+	MOV ECX, 10
+	MOV EDX, 0 ;indice para entrada e soma
+	MOV EDI, vetor_resultado
+	
+lp_excessivo:
+	MOV EAX, [vetor_entrada + EDX]
+	MOV EBX, [vetor_soma_divisores + EDX]
+	
+	CMP EBX, EAX
+	JG insere_excessivo
+	
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, nulo
+	CALL print_string
+	MOV EAX, colchete_fecha
+	CALL print_string
+	
+	ADD EDX, 4
+	LOOP lp_excessivo
+	
+	JMP voltar_menu
+	
+insere_excessivo:
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, [vetor_entrada + EDX]
 	CALL print_int
-	CALL print_nl
-	JMP imprime_menu
+	MOV EAX, colchete_fecha
+	CALL print_string
+	
+	ADD EDX, 4
+	LOOP lp_excessivo
+	JMP voltar_menu
+
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
 	
 check_perfeito:
-	MOV EAX, 20022
+	MOV EAX, text_res_perfeito
+	CALL print_string
+	
+	MOV ECX, 10
+	MOV EDX, 0 ;indice para entrada e soma
+	MOV EDI, vetor_resultado
+	
+lp_perfeito:
+	MOV EAX, [vetor_entrada + EDX]
+	MOV EBX, [vetor_soma_divisores + EDX]
+	
+	CMP EBX, EAX
+	JZ insere_perfeito
+	
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, nulo
+	CALL print_string
+	MOV EAX, colchete_fecha
+	CALL print_string
+	
+	ADD EDX, 4
+	LOOP lp_perfeito
+	
+	JMP voltar_menu
+	
+insere_perfeito:
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, [vetor_entrada + EDX]
 	CALL print_int
-	CALL print_nl
-	JMP imprime_menu
+	MOV EAX, colchete_fecha
+	CALL print_string
+	
+	ADD EDX, 4
+	LOOP lp_perfeito
+	JMP voltar_menu
+	
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
 	
 check_deficiente:
-	MOV EAX, 30033
+	MOV EAX, text_res_deficiente
+	CALL print_string
+	
+	MOV ECX, 10
+	MOV EDX, 0 ;indice para entrada e soma
+	MOV EDI, vetor_resultado
+	
+lp_deficiente:
+	MOV EAX, [vetor_entrada + EDX]
+	MOV EBX, [vetor_soma_divisores + EDX]
+	
+	CMP EBX, EAX
+	JL insere_deficiente
+	
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, nulo
+	CALL print_string
+	MOV EAX, colchete_fecha
+	CALL print_string
+	
+	ADD EDX, 4
+	LOOP lp_deficiente
+	
+	JMP voltar_menu
+	
+insere_deficiente:
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, [vetor_entrada + EDX]
 	CALL print_int
-	CALL print_nl
-	JMP imprime_menu
+	MOV EAX, colchete_fecha
+	CALL print_string
+	
+	ADD EDX, 4
+	LOOP lp_deficiente
+	JMP voltar_menu
+	
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
 	
 check_amigavel:
-	MOV EAX, 40044
+	; EAX = soma_divisores[A]
+	; EBX = soma_divisores[B]
+	MOV ECX, 0 ; Indice para elemento A do vetor_entrada [0~36]
+	MOV [indice], EBX
+	MOV EDX, 4 ; Indice para elemento B do vetor_entrada [0~36]
+	MOV [indice2], ECX
+	
+	MOV EAX, [vetor_entrada + ECX]
 	CALL print_int
-	CALL print_nl
-	JMP imprime_menu
+	MOV EAX, espaco
+	CALL print_string
+	MOV EAX, [vetor_entrada + EDX]
+	CALL print_int
+	MOV EAX, espaco
+	CALL print_string
+	MOV EAX, [vetor_soma_divisores + ECX]
+	CALL print_int
+	MOV EAX, espaco
+	CALL print_string
+	MOV EAX, [vetor_soma_divisores + EDX]
+	CALL print_int
+	MOV EAX, espaco
+	CALL print_string
+	
+;	MOV EAX, [vetor_soma_divisores + ECX]
+;	MOV EBX, [vetor_soma_divisores + EDX]
+;	
+;	CMP EAX, [vetor_entrada + EDX]
+;	JNZ voltar_menu
+;	CMP EBX, [vetor_entrada + ECX]
+;	JNZ voltar_menu
+;	JMP insere_amigavel
+;	
+;insere_amigavel:
+;	MOV EAX, [vetor_entrada + ECX]
+;	CALL print_int
+;	MOV EAX, espaco
+;	CALL print_string
+;	MOV EAX, [vetor_entrada + EDX]
+;	CALL print_int
+	JMP voltar_menu
+	
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
 	
 check_sociavel:
 	MOV EAX, 50055
@@ -443,11 +611,19 @@ check_sociavel:
 	CALL print_nl
 	JMP imprime_menu
 	
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+	
 check_primo:
 	MOV EAX, 60066
 	CALL print_int
 	CALL print_nl
 	JMP imprime_menu
+	
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
 	
 check_fibonacci:
 	MOV EAX, 70077
@@ -455,11 +631,27 @@ check_fibonacci:
 	CALL print_nl
 	JMP imprime_menu
 	
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+	
 check_fatorial:
 	MOV EAX, 80088
 	CALL print_int
 	CALL print_nl
 	JMP imprime_menu
+	
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+	
+voltar_menu:
+	CALL print_nl
+	JMP imprime_menu
+	
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
+;-----------------------------------------------------------------------
 	
 end:
 	LEAVE
