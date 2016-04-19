@@ -8,7 +8,7 @@ Repositorio do trabalho pratico de MATA49 - Programacao de software basico.
 	- Substituir modulo de numero deficiente por implementacao do asm_main
 	- Validar funcao soma_divisores
 
-- Coisas a fazer: 12 de 19
+- Coisas a fazer: 12 de 21
 - [X] Implementar modulo de divisor
 - [X] Implementar modulo de primo
 - [X] Implementar modulo de numero excessivo
@@ -21,11 +21,12 @@ Repositorio do trabalho pratico de MATA49 - Programacao de software basico.
 - [X] Implementar leitura de entrada
 - [X] Implementar pre-processamento da entrada
 - [X] Implementar menu principal do programa
-- [X] Integrar modulos de numero excessivo no asm_main
-- [X] Integrar modulos de numero perfeito no asm_main
-- [X] Integrar modulos de numero deficiente no asm_main
-- [ ] Integrar modulos de numero amigavel no asm_main
-- [ ] Integrar modulos de numero sociavel no asm_main
-- [ ] Integrar modulos de sequencia de fibonacc no asm_main
-- [ ] Integrar modulos de fatorial no asm_main
-- [ ] Entregar trabalho para Alberto
+- [X] Integrar modulo de numero excessivo no asm_main
+- [X] Integrar modulo de numero perfeito no asm_main
+- [X] Integrar modulo de numero deficiente no asm_main
+- [ ] Integrar modulo de numero amigavel no asm_main
+- [ ] Integrar modulo de numero sociavel no asm_main
+- [ ] Integrar modulo de numero primo no asm_main
+- [ ] Integrar modulo de sequencia de fibonacc no asm_main
+- [ ] Integrar modulo de fatorial no asm_main
+- [ ] Entregar trabalho para Alberto via email
