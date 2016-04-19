@@ -10,8 +10,18 @@
 %include "asm_io.inc"
 
 segment .data
-	text_prompt1 DB "Insira 10 numeros.", 0
-	espaco       DB " ", 0
+	text_prompt1     DB ">> Insira 10 numeros.", 0
+	
+	text_menu_titulo DB ">> Selecione uma funcao", 0
+	text_menu_opcao1 DB "[1] Numeros excessivos", 0
+	text_menu_opcao2 DB "[2] Numeros perfeitos", 0
+	text_menu_opcao3 DB "[3] Numeros deficientes", 0
+	text_menu_opcao4 DB "[4] Numeros amigaveis", 0
+	text_menu_opcao5 DB "[5] Numeros sociaveis", 0
+	text_menu_opcao6 DB "[6] Numeros primos", 0
+	text_menu_opcao7 DB "[7] Sequencia de fibonacci", 0
+	text_menu_opcao8 DB "[8] Fatorial", 0
+	text_menu_opcao9 DB "[9] Sair", 0
 	
 	indice       DD 0 ; Armazena indice do vetor
 
@@ -342,23 +352,114 @@ calcula_divisores:
 	LOOP calcula_divisores
 	
 	;entre no menu
-menu:
-	MOV EBX, 0
-	MOV ECX, 10
-	
-lp:
-	MOV EAX, [vetor_entrada + EBX]
-	CALL print_int
-	
-	MOV EAX, espaco
+imprime_menu:
+	MOV EAX, text_menu_titulo
 	CALL print_string
-	
-	MOV EAX, [vetor_soma_divisores + EBX]
-	CALL print_int
-	
 	CALL print_nl
-	ADD EBX, 4
-	LOOP lp
+	
+	MOV EAX, text_menu_opcao1
+	CALL print_string
+	CALL print_nl
+	
+	MOV EAX, text_menu_opcao2
+	CALL print_string
+	CALL print_nl
+	
+	MOV EAX, text_menu_opcao3
+	CALL print_string
+	CALL print_nl
+	
+	MOV EAX, text_menu_opcao4
+	CALL print_string
+	CALL print_nl
+	
+	MOV EAX, text_menu_opcao5
+	CALL print_string
+	CALL print_nl
+	
+	MOV EAX, text_menu_opcao6
+	CALL print_string
+	CALL print_nl
+	
+	MOV EAX, text_menu_opcao7
+	CALL print_string
+	CALL print_nl
+	
+	MOV EAX, text_menu_opcao8
+	CALL print_string
+	CALL print_nl
+	
+	MOV EAX, text_menu_opcao9
+	CALL print_string
+	CALL print_nl
+
+menu:
+	CALL read_int
+	CMP EAX, 1
+	JZ check_excessivo
+	CMP EAX, 2
+	JZ check_perfeito
+	CMP EAX, 3
+	JZ check_deficiente
+	CMP EAX, 4
+	JZ check_amigavel
+	CMP EAX, 5
+	JZ check_sociavel
+	CMP EAX, 6
+	JZ check_primo
+	CMP EAX, 7
+	JZ check_fibonacci
+	CMP EAX, 8
+	JZ check_fatorial
+	JMP end
+	
+check_excessivo:
+	MOV EAX, 10011
+	CALL print_int
+	CALL print_nl
+	JMP imprime_menu
+	
+check_perfeito:
+	MOV EAX, 20022
+	CALL print_int
+	CALL print_nl
+	JMP imprime_menu
+	
+check_deficiente:
+	MOV EAX, 30033
+	CALL print_int
+	CALL print_nl
+	JMP imprime_menu
+	
+check_amigavel:
+	MOV EAX, 40044
+	CALL print_int
+	CALL print_nl
+	JMP imprime_menu
+	
+check_sociavel:
+	MOV EAX, 50055
+	CALL print_int
+	CALL print_nl
+	JMP imprime_menu
+	
+check_primo:
+	MOV EAX, 60066
+	CALL print_int
+	CALL print_nl
+	JMP imprime_menu
+	
+check_fibonacci:
+	MOV EAX, 70077
+	CALL print_int
+	CALL print_nl
+	JMP imprime_menu
+	
+check_fatorial:
+	MOV EAX, 80088
+	CALL print_int
+	CALL print_nl
+	JMP imprime_menu
 	
 end:
 	LEAVE
