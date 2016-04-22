@@ -24,9 +24,9 @@ Repositorio do trabalho pratico de MATA49 - Programacao de software basico.
 - [X] Integrar modulo de numero excessivo no asm_main
 - [X] Integrar modulo de numero perfeito no asm_main
 - [X] Integrar modulo de numero deficiente no asm_main
-- [ ] Integrar modulo de numero amigavel no asm_main
+- [X] Integrar modulo de numero amigavel no asm_main
 - [ ] Integrar modulo de numero sociavel no asm_main
 - [ ] Integrar modulo de numero primo no asm_main
-- [ ] Integrar modulo de sequencia de fibonacc no asm_main
+- [ ] Integrar modulo de sequencia de fibonacci no asm_main
 - [ ] Integrar modulo de fatorial no asm_main
 - [ ] Entregar trabalho para Alberto via email

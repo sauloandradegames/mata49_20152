@@ -566,48 +566,78 @@ check_amigavel:
 	MOV EDX, 4 ; Indice para elemento B do vetor_entrada [0~36]
 	MOV [indice2], ECX
 	
-	MOV EAX, [vetor_entrada + ECX]
-	CALL print_int
-	MOV EAX, espaco
-	CALL print_string
-	MOV EAX, [vetor_entrada + EDX]
-	CALL print_int
-	MOV EAX, espaco
-	CALL print_string
-	MOV EAX, [vetor_soma_divisores + ECX]
-	CALL print_int
-	MOV EAX, espaco
-	CALL print_string
-	MOV EAX, [vetor_soma_divisores + EDX]
-	CALL print_int
-	MOV EAX, espaco
-	CALL print_string
-	
-;	MOV EAX, [vetor_soma_divisores + ECX]
-;	MOV EBX, [vetor_soma_divisores + EDX]
-;	
-;	CMP EAX, [vetor_entrada + EDX]
-;	JNZ voltar_menu
-;	CMP EBX, [vetor_entrada + ECX]
-;	JNZ voltar_menu
-;	JMP insere_amigavel
-;	
-;insere_amigavel:
 ;	MOV EAX, [vetor_entrada + ECX]
 ;	CALL print_int
 ;	MOV EAX, espaco
 ;	CALL print_string
 ;	MOV EAX, [vetor_entrada + EDX]
 ;	CALL print_int
-	JMP voltar_menu
+;	MOV EAX, espaco
+;	CALL print_string
+;	MOV EAX, [vetor_soma_divisores + ECX]
+;	CALL print_int
+;	MOV EAX, espaco
+;	CALL print_string
+;	MOV EAX, [vetor_soma_divisores + EDX]
+;	CALL print_int
+;	MOV EAX, espaco
+;	CALL print_string
+	
+teste_amigavel:
+	MOV EAX, [vetor_soma_divisores + ECX]
+	MOV EBX, [vetor_soma_divisores + EDX]
+	
+	CMP EAX, [vetor_entrada + EDX]
+	JNZ prox
+	CMP EBX, [vetor_entrada + ECX]
+	JNZ prox
+	JMP insere_amigavel
+	
+prox:
+	ADD ECX, 4
+	CMP ECX, 40
+	JGE reiniciar
+	JMP teste_amigavel
+	
+reiniciar:
+	ADD EBX, 4
+	CMP EBX, 40
+	JGE voltar_menu
+	MOV ECX, EBX
+	ADD ECX, 4
+	JMP teste_amigavel
+	
+insere_amigavel:
+	MOV EAX, [vetor_entrada + ECX]
+	CALL print_int
+	MOV EAX, espaco
+	CALL print_string
+	MOV EAX, [vetor_entrada + EDX]
+	CALL print_int
+	CALL print_nl
+	JMP prox
 	
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
 	
 check_sociavel:
-	MOV EAX, 50055
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EDX, 0
+	MOV ECX, 10
+	
+sd_lp:
+	MOV EAX, [vetor_soma_divisores + EDX]
 	CALL print_int
+	MOV EAX, espaco
+	CALL print_string
+	ADD EDX, 4
+	LOOP sd_lp
+	
+fim:
+	MOV EAX, colchete_fecha
+	CALL print_string
 	CALL print_nl
 	JMP imprime_menu
 	
