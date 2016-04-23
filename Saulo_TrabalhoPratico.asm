@@ -26,11 +26,16 @@ segment .data
 	text_res_excessivo   DB ">> Numeros Excessivos : ", 0
 	text_res_perfeito    DB ">> Numeros Perfeitos  : ", 0
 	text_res_deficiente  DB ">> Numeros Deficientes: ", 0
+	text_res_amigavel    DB ">> Pares de numeros amigaveis: ", 0
+	text_res_primo       DB ">> Numeros Primos     : ", 0
+	text_res_fibonacci   DB ">> Fibonacci", 0
+	text_res_fatorial    DB ">> Fatorial"
 	
 	colchete_abre  DB "[ ", 0
 	colchete_fecha DB " ]", 0
 	nulo           DB "---", 0
 	espaco         DB " , ", 0
+	igual          DB " = ", 0
 	
 	indice       DD 0 ; Armazena indice do vetor
 	indice2      DD 0 ; Armazena indice do vetor
@@ -320,6 +325,78 @@ eh_primo:
 	JMP end
 ;-----------------------------------------------------------------------
 
+;-----------------------------------------------------------------------
+; imprime na tela a sequencia de fibonacci para o parametro de entrada
+; entrada:
+;    1 valor na pilha
+; saida:
+;    padrao: sequencia de fibonacci ate o parametro de entrada
+fibonacci:
+	ENTER 4, 0
+	
+	MOV EAX, [EBP + 8]
+	CMP EAX, 0
+	JZ end
+	
+	MOV EBX, 1 ; numero atual
+	MOV ECX, 0 ; numero anterior
+	MOV EDX, 0 ; numero anterior do anterior
+	
+	MOV EAX, [EBP + 8]
+	CMP EAX, 0
+	JZ end
+
+insere_fibonacci:
+	MOV EAX, EBX
+	CALL print_int
+
+	MOV EDX, ECX
+	MOV ECX, EBX
+	
+	MOV EBX, 0
+	ADD EBX, ECX
+	ADD EBX, EDX
+	CMP EBX, [EBP + 8]
+	JG end
+
+	MOV EAX, espaco
+	CALL print_string
+	
+	JMP insere_fibonacci
+;-----------------------------------------------------------------------
+
+;-----------------------------------------------------------------------
+; retorna o fatorial do parametro de entrada
+; entrada:
+;    1 valor na pilha
+; saida:
+;    EAX = fatorial do parametro de entrada
+fatorial:
+	ENTER 4, 0
+	
+	MOV EAX, [EBP + 8]
+	CMP EAX, 0
+	JZ fat_zero
+	CMP EAX, 1
+	JZ fat_zero
+	
+	MOV EAX, 1
+	MOV ECX, [EBP + 8]
+fat_lp:
+	IMUL EAX, ECX
+	LOOP fat_lp
+	JMP end
+	
+fat_zero:
+	MOV EAX, 1
+	JMP end
+	
+	CALL print_int
+	CALL print_nl
+	
+	JMP end
+;-----------------------------------------------------------------------
+
 ;=======================================================================
 ;========================= PROGRAMA PRINCIPAL ==========================
 ;=======================================================================
@@ -362,6 +439,33 @@ calcula_divisores:
 	MOV [indice], EDX
 	MOV ECX, [contador]
 	LOOP calcula_divisores
+	
+;;;
+	MOV EBX, 0
+debug1:
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, [vetor_entrada + EBX]
+	CALL print_int
+	MOV EAX, colchete_fecha
+	CALL print_string
+	ADD EBX, 4
+	CMP EBX, 40
+	JL debug1
+	CALL print_nl
+	MOV EBX, 0
+debug2:
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, [vetor_soma_divisores + EBX]
+	CALL print_int
+	MOV EAX, colchete_fecha
+	CALL print_string
+	ADD EBX, 4
+	CMP EBX, 40
+	JL debug2
+	CALL print_nl
+;;;
 	
 	;entre no menu
 imprime_menu:
@@ -561,27 +665,11 @@ insere_deficiente:
 check_amigavel:
 	; EAX = soma_divisores[A]
 	; EBX = soma_divisores[B]
-	MOV ECX, 0 ; Indice para elemento A do vetor_entrada [0~36]
-	MOV [indice], EBX
-	MOV EDX, 4 ; Indice para elemento B do vetor_entrada [0~36]
-	MOV [indice2], ECX
+	MOV EAX, text_res_amigavel
+	CALL print_string
 	
-;	MOV EAX, [vetor_entrada + ECX]
-;	CALL print_int
-;	MOV EAX, espaco
-;	CALL print_string
-;	MOV EAX, [vetor_entrada + EDX]
-;	CALL print_int
-;	MOV EAX, espaco
-;	CALL print_string
-;	MOV EAX, [vetor_soma_divisores + ECX]
-;	CALL print_int
-;	MOV EAX, espaco
-;	CALL print_string
-;	MOV EAX, [vetor_soma_divisores + EDX]
-;	CALL print_int
-;	MOV EAX, espaco
-;	CALL print_string
+	MOV ECX, 0 ; Indice para elemento A do vetor_entrada [0~36]
+	MOV EDX, 4 ; Indice para elemento B do vetor_entrada [0~36]
 	
 teste_amigavel:
 	MOV EAX, [vetor_soma_divisores + ECX]
@@ -594,27 +682,30 @@ teste_amigavel:
 	JMP insere_amigavel
 	
 prox:
-	ADD ECX, 4
-	CMP ECX, 40
+	ADD EDX, 4
+	CMP EDX, 40
 	JGE reiniciar
 	JMP teste_amigavel
 	
 reiniciar:
-	ADD EBX, 4
-	CMP EBX, 40
-	JGE voltar_menu
-	MOV ECX, EBX
 	ADD ECX, 4
+	CMP ECX, 40
+	JGE voltar_menu
+	MOV EDX, ECX
+	ADD EDX, 4
 	JMP teste_amigavel
 	
 insere_amigavel:
+	MOV EAX, colchete_abre
+	CALL print_string
 	MOV EAX, [vetor_entrada + ECX]
 	CALL print_int
 	MOV EAX, espaco
 	CALL print_string
 	MOV EAX, [vetor_entrada + EDX]
 	CALL print_int
-	CALL print_nl
+	MOV EAX, colchete_fecha
+	CALL print_string
 	JMP prox
 	
 ;-----------------------------------------------------------------------
@@ -622,55 +713,112 @@ insere_amigavel:
 ;-----------------------------------------------------------------------
 	
 check_sociavel:
-	MOV EAX, colchete_abre
-	CALL print_string
-	MOV EDX, 0
-	MOV ECX, 10
+	MOV ECX, 0 ;[0~36]
+	MOV EDX, 0 ;[0~36]
+	MOV EBX, 0 ;numero de candidatos
+	MOV ESI, vetor_candidatos
 	
-sd_lp:
-	MOV EAX, [vetor_soma_divisores + EDX]
-	CALL print_int
-	MOV EAX, espaco
-	CALL print_string
-	ADD EDX, 4
-	LOOP sd_lp
-	
-fim:
-	MOV EAX, colchete_fecha
-	CALL print_string
-	CALL print_nl
-	JMP imprime_menu
+; ta tudo errado, fazer de novo
 	
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
 	
 check_primo:
-	MOV EAX, 60066
+	MOV ECX, 0 ; ECX = 0~36
+	MOV EAX, text_res_primo
+	CALL print_string
+
+primo_lp:
+	MOV EAX, [vetor_entrada + ECX]
+	PUSH EAX
+	CALL primo
+	
+	CMP EAX, 1
+	JZ insere_primo
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, nulo
+	CALL print_string
+	MOV EAX, colchete_fecha
+	CALL print_string
+	
+	ADD ECX, 4
+	CMP ECX, 40
+	JGE voltar_menu
+	JMP primo_lp
+	
+insere_primo:
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, [vetor_entrada + ECX]
 	CALL print_int
-	CALL print_nl
-	JMP imprime_menu
+	MOV EAX, colchete_fecha
+	CALL print_string
+	
+	ADD ECX, 4
+	CMP ECX, 40
+	JGE voltar_menu
+	JMP primo_lp
 	
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
 	
 check_fibonacci:
-	MOV EAX, 70077
+	MOV ECX, 0 ; indice
+	
+check_fibo_lp:
+	MOV EAX, text_res_fibonacci
+	CALL print_string
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, [vetor_entrada + ECX]
 	CALL print_int
+	PUSH EAX
+	MOV EAX, colchete_fecha
+	CALL print_string
+	MOV EAX, igual
+	CALL print_string
+	MOV [indice], ECX
+	CALL fibonacci
+	
 	CALL print_nl
-	JMP imprime_menu
+	MOV ECX, [indice]
+	ADD ECX, 4
+	CMP ECX, 40
+	JGE voltar_menu
+	JMP check_fibo_lp
 	
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
 	
 check_fatorial:
-	MOV EAX, 80088
+	MOV ECX, 0 ; indice
+	
+check_fat_lp:
+	MOV EAX, text_res_fatorial
+	CALL print_string
+	MOV EAX, colchete_abre
+	CALL print_string
+	MOV EAX, [vetor_entrada + ECX]
+	CALL print_int
+	PUSH EAX
+	MOV EAX, colchete_fecha
+	CALL print_string
+	MOV EAX, igual
+	CALL print_string
+	MOV [indice], ECX
+	CALL fatorial
+	
 	CALL print_int
 	CALL print_nl
-	JMP imprime_menu
-	
+	MOV ECX, [indice]
+	ADD ECX, 4
+	CMP ECX, 40
+	JGE voltar_menu
+	JMP check_fat_lp
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
