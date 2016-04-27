@@ -9,6 +9,9 @@
 
 %include "asm_io.inc"
 
+; colocar anotacao para alberto: representacao de fibonacci ate o ultimo elemento da sequencia menor que a entrada
+; fatorial: dw suporta fatorial ate 12. 13 gera overflow. msg de erro caso entrada maior do que isso
+
 segment .data
 	text_prompt1     DB ">> Insira 10 numeros.", 0
 	
@@ -29,7 +32,7 @@ segment .data
 	text_res_amigavel    DB ">> Pares de numeros amigaveis: ", 0
 	text_res_primo       DB ">> Numeros Primos     : ", 0
 	text_res_fibonacci   DB ">> Fibonacci", 0
-	text_res_fatorial    DB ">> Fatorial"
+	text_res_fatorial    DB ">> Fatorial", 0
 	
 	colchete_abre  DB "[ ", 0
 	colchete_fecha DB " ]", 0
@@ -56,6 +59,8 @@ segment .bss
 	vetor_primos            RESD 100
 	vetor_divisores         RESD 100
 	vetor_candidatos        RESD 100 ; armazena candidatos a numeros amigaveis ou sociaveis
+	
+	inicio_ciclo            RESD 1   ; armazena valor que comeca ciclo sociavel
 	
 	param_crivo             RESD 1
 	param_divisor           RESD 1
@@ -713,12 +718,32 @@ insere_amigavel:
 ;-----------------------------------------------------------------------
 	
 check_sociavel:
-	MOV ECX, 0 ;[0~36]
-	MOV EDX, 0 ;[0~36]
+	MOV ECX, 0 ;[0~36] navega por vetor_entrada
+	MOV EDX, 0 ;[0~36] navega por vetor_soma_divisores
 	MOV EBX, 0 ;numero de candidatos
 	MOV ESI, vetor_candidatos
 	
-; ta tudo errado, fazer de novo
+	MOV EAX, [vetor_entrada + ECX]
+	STOSD
+	INC EBX
+	
+	MOV [inicio_ciclo], EAX
+	MOV EAX, [vetor_soma_divisores + ECX]
+	
+busca_sociavel:
+	CMP EAX, [vetor_entrada + ECX]
+	JZ insere_candidato
+	ADD ECX, 4
+	CMP ECX, 40
+	JGE busca_sociavel
+	JMP reiniciar_sociavel
+	
+insere_candidato:
+	MOV EAX, [vetor_entrada + ECX]
+	CMP EAX, [inicio_ciclo]
+	JZ encerra_busca_sociavel
+	STOSD
+	INC EBX
 	
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
