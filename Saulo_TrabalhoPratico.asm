@@ -30,6 +30,7 @@ segment .data
 	text_res_perfeito    DB ">> Numeros Perfeitos  : ", 0
 	text_res_deficiente  DB ">> Numeros Deficientes: ", 0
 	text_res_amigavel    DB ">> Pares de numeros amigaveis: ", 0
+	text_res_sociavel    DB "-- Achei um ciclo sociavel!!!", 0
 	text_res_primo       DB ">> Numeros Primos     : ", 0
 	text_res_fibonacci   DB ">> Fibonacci", 0
 	text_res_fatorial    DB ">> Fatorial", 0
@@ -718,8 +719,8 @@ insere_amigavel:
 ;-----------------------------------------------------------------------
 	
 check_sociavel:
-	MOV ECX, 0 ;[0~36] navega por vetor_entrada
-	MOV EDX, 0 ;[0~36] navega por vetor_soma_divisores
+	MOV ECX, 0 ;[0~36] navega por vetor_entrada (loop externo)
+	MOV EDX, 0 ;[0~36] navega por vetor_entrada (loop interno)
 	MOV EBX, 0 ;numero de candidatos
 	MOV ESI, vetor_candidatos
 	
@@ -731,19 +732,47 @@ check_sociavel:
 	MOV EAX, [vetor_soma_divisores + ECX]
 	
 busca_sociavel:
-	CMP EAX, [vetor_entrada + ECX]
+	CMP EAX, [vetor_entrada + EDX]
 	JZ insere_candidato
-	ADD ECX, 4
-	CMP ECX, 40
-	JGE busca_sociavel
-	JMP reiniciar_sociavel
+	ADD EDX, 4
+	CMP EDX, 40
+	JGE reiniciar_sociavel
+	JMP busca_sociavel
 	
 insere_candidato:
-	MOV EAX, [vetor_entrada + ECX]
+	MOV EAX, [vetor_entrada + EDX]
 	CMP EAX, [inicio_ciclo]
 	JZ encerra_busca_sociavel
 	STOSD
 	INC EBX
+	MOV EAX, [vetor_soma_divisores + EDX]
+	MOV EDX, 0
+	JMP busca_sociavel
+	
+encerra_busca_sociavel:
+	CMP EBX, 3
+	JL reiniciar_sociavel
+	
+	MOV EAX, text_res_sociavel
+	CALL print_string
+	CALL print_nl
+	
+	JMP reiniciar_sociavel
+	
+reiniciar_sociavel:
+	ADD ECX, 4
+	CMP ECX, 40
+	JGE voltar_menu
+	MOV EDX, 0
+	MOV EBX, 0
+	MOV ESI, vetor_candidatos
+	MOV EAX, [vetor_entrada + ECX]
+	STOSD
+	INC EBX
+	MOV [inicio_ciclo], EAX
+	MOV EAX, [vetor_soma_divisores + ECX]
+	JMP busca_sociavel
+	
 	
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------

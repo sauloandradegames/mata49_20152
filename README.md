@@ -9,6 +9,7 @@ Repositorio do trabalho pratico de MATA49 - Programacao de software basico.
 	- Substituir modulo de numero amigavel por implementacao do asm_main
 	- Colocar anotacao para alberto: representacao de fibonacci ate o ultimo elemento da sequencia menor que a entrada
 	- Fatorial: dw suporta fatorial ate 12. 13 gera overflow. msg de erro caso entrada maior do que isso
+	- Adicionar funcao para reiniciar o programa
 
 - Coisas a fazer: 18 de 22
 - [X] Implementar modulo de divisor
