@@ -11,14 +11,14 @@ Repositorio do trabalho pratico de MATA49 - Programacao de software basico.
 	- Fatorial: dw suporta fatorial ate 12. 13 gera overflow. msg de erro caso entrada maior do que isso
 	- Adicionar funcao para reiniciar o programa
 
-- Coisas a fazer: 18 de 22
+- Coisas a fazer: 20 de 22
 - [X] Implementar modulo de divisor
 - [X] Implementar modulo de primo
 - [X] Implementar modulo de numero excessivo
 - [X] Implementar modulo de numero perfeito
 - [X] Implementar modulo de numero deficiente
 - [X] Implementar modulo de numero amigavel
-- [ ] Implementar modulo de numero sociavel
+- [X] Implementar modulo de numero sociavel
 - [X] Implementar modulo de sequencia de fibonnaci
 - [X] Implementar modulo de fatorial
 - [X] Implementar leitura de entrada
@@ -29,7 +29,7 @@ Repositorio do trabalho pratico de MATA49 - Programacao de software basico.
 - [X] Integrar modulo de numero perfeito no asm_main
 - [X] Integrar modulo de numero deficiente no asm_main
 - [X] Integrar modulo de numero amigavel no asm_main
-- [ ] Integrar modulo de numero sociavel no asm_main
+- [X] Integrar modulo de numero sociavel no asm_main
 - [X] Integrar modulo de numero primo no asm_main
 - [X] Integrar modulo de sequencia de fibonacci no asm_main
 - [X] Integrar modulo de fatorial no asm_main

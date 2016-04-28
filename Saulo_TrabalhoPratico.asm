@@ -30,7 +30,7 @@ segment .data
 	text_res_perfeito    DB ">> Numeros Perfeitos  : ", 0
 	text_res_deficiente  DB ">> Numeros Deficientes: ", 0
 	text_res_amigavel    DB ">> Pares de numeros amigaveis: ", 0
-	text_res_sociavel    DB "-- Achei um ciclo sociavel!!!", 0
+	text_res_sociavel    DB ">> Ciclos de numeros sociaveis: ", 0
 	text_res_primo       DB ">> Numeros Primos     : ", 0
 	text_res_fibonacci   DB ">> Fibonacci", 0
 	text_res_fatorial    DB ">> Fatorial", 0
@@ -46,7 +46,6 @@ segment .data
 	
 	vetor_entrada TIMES 10 DD -1
 	vetor_soma_divisores TIMES 10 DD -1
-	vetor_resultado TIMES 10 DD -1
 
 	testificate  DD 220 ;1 2 3 4 6 12 = 28
 	testificate2 DD 284 ;1 2 4 7 14 28 = 56
@@ -54,6 +53,7 @@ segment .data
 	;12 excessivo
 	;28 perfeito
 	;10 deficiente
+	;12496, 14288, 15472, 14536 e 14264 formam um ciclo sociavel
 	
 segment .bss
 	
@@ -61,8 +61,9 @@ segment .bss
 	vetor_divisores         RESD 100
 	vetor_candidatos        RESD 100 ; armazena candidatos a numeros amigaveis ou sociaveis
 	
-	inicio_ciclo            RESD 1   ; armazena valor que comeca ciclo sociavel
+	vetor_emCiclo           RESD 10  ; indica se a entrada da posicao i ja se encontra em algum ciclo
 	
+	inicio_ciclo            RESD 1   ; armazena valor que comeca ciclo sociavel
 	param_crivo             RESD 1
 	param_divisor           RESD 1
 	param_soma              RESD 1
@@ -446,6 +447,14 @@ calcula_divisores:
 	MOV ECX, [contador]
 	LOOP calcula_divisores
 	
+	;inicializa vetor emCiclo, para registrar elementos que ja pertencem a algum ciclo sociavel
+
+inicializa_emCiclo:
+	MOV EDI, vetor_emCiclo
+	MOV EAX, 0
+	MOV ECX, 10
+	REP STOSD
+	
 ;;;
 	MOV EBX, 0
 debug1:
@@ -545,7 +554,6 @@ check_excessivo:
 	
 	MOV ECX, 10
 	MOV EDX, 0 ;indice para entrada e soma
-	MOV EDI, vetor_resultado
 	
 lp_excessivo:
 	MOV EAX, [vetor_entrada + EDX]
@@ -588,7 +596,6 @@ check_perfeito:
 	
 	MOV ECX, 10
 	MOV EDX, 0 ;indice para entrada e soma
-	MOV EDI, vetor_resultado
 	
 lp_perfeito:
 	MOV EAX, [vetor_entrada + EDX]
@@ -631,7 +638,6 @@ check_deficiente:
 	
 	MOV ECX, 10
 	MOV EDX, 0 ;indice para entrada e soma
-	MOV EDI, vetor_resultado
 	
 lp_deficiente:
 	MOV EAX, [vetor_entrada + EDX]
@@ -722,7 +728,10 @@ check_sociavel:
 	MOV ECX, 0 ;[0~36] navega por vetor_entrada (loop externo)
 	MOV EDX, 0 ;[0~36] navega por vetor_entrada (loop interno)
 	MOV EBX, 0 ;numero de candidatos
-	MOV ESI, vetor_candidatos
+	MOV EDI, vetor_candidatos
+	
+	MOV EAX, text_res_sociavel
+	CALL print_string
 	
 	MOV EAX, [vetor_entrada + ECX]
 	STOSD
@@ -745,6 +754,7 @@ insere_candidato:
 	JZ encerra_busca_sociavel
 	STOSD
 	INC EBX
+	MOV [vetor_emCiclo + EDX], EAX
 	MOV EAX, [vetor_soma_divisores + EDX]
 	MOV EDX, 0
 	JMP busca_sociavel
@@ -753,10 +763,25 @@ encerra_busca_sociavel:
 	CMP EBX, 3
 	JL reiniciar_sociavel
 	
-	MOV EAX, text_res_sociavel
+
+	MOV EAX, colchete_abre
 	CALL print_string
-	CALL print_nl
 	
+	MOV ESI, vetor_candidatos
+	XCHG ECX, EBX
+
+insere_sociavel:
+	LODSD
+	CALL print_int
+	CMP ECX, 1
+	JZ fim_insere_sociavel
+	MOV EAX, espaco
+	CALL print_string
+	LOOP insere_sociavel
+fim_insere_sociavel:
+	MOV EAX, colchete_fecha
+	CALL print_string
+	XCHG ECX, EBX
 	JMP reiniciar_sociavel
 	
 reiniciar_sociavel:
@@ -765,7 +790,7 @@ reiniciar_sociavel:
 	JGE voltar_menu
 	MOV EDX, 0
 	MOV EBX, 0
-	MOV ESI, vetor_candidatos
+	MOV EDI, vetor_candidatos
 	MOV EAX, [vetor_entrada + ECX]
 	STOSD
 	INC EBX
