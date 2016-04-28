@@ -35,6 +35,8 @@ segment .data
 	text_res_fibonacci   DB ">> Fibonacci", 0
 	text_res_fatorial    DB ">> Fatorial", 0
 	
+	text_erro_overflow   DB "Valor grande demais.", 0
+	
 	colchete_abre  DB "[ ", 0
 	colchete_fecha DB " ]", 0
 	nulo           DB "---", 0
@@ -207,6 +209,9 @@ eh_amigavel:
 ;    EAX = soma dos divisores de EBX
 soma_divisores:
 	ENTER 0, 0
+	
+	CMP EBX, 0
+	JZ encerra_somatorio
 	
 	MOV [param_soma], EBX
 	
@@ -391,6 +396,7 @@ fatorial:
 	MOV ECX, [EBP + 8]
 fat_lp:
 	IMUL EAX, ECX
+	JO fat_overflow
 	LOOP fat_lp
 	JMP end
 	
@@ -398,9 +404,8 @@ fat_zero:
 	MOV EAX, 1
 	JMP end
 	
-	CALL print_int
-	CALL print_nl
-	
+fat_overflow:
+	MOV EAX, -1
 	JMP end
 ;-----------------------------------------------------------------------
 
@@ -451,7 +456,7 @@ calcula_divisores:
 
 inicializa_emCiclo:
 	MOV EDI, vetor_emCiclo
-	MOV EAX, 0
+	MOV EAX, -1
 	MOV ECX, 10
 	REP STOSD
 	
@@ -733,9 +738,15 @@ check_sociavel:
 	MOV EAX, text_res_sociavel
 	CALL print_string
 	
+ja_tem_ciclo:
+	MOV EAX, [vetor_emCiclo + ECX]
+	CMP EAX, -1
+	JNZ reiniciar_emciclo
+	
 	MOV EAX, [vetor_entrada + ECX]
 	STOSD
 	INC EBX
+	MOV [vetor_emCiclo + ECX], EAX
 	
 	MOV [inicio_ciclo], EAX
 	MOV EAX, [vetor_soma_divisores + ECX]
@@ -745,7 +756,7 @@ busca_sociavel:
 	JZ insere_candidato
 	ADD EDX, 4
 	CMP EDX, 40
-	JGE reiniciar_sociavel
+	JGE reiniciar_emciclo
 	JMP busca_sociavel
 	
 insere_candidato:
@@ -761,8 +772,7 @@ insere_candidato:
 	
 encerra_busca_sociavel:
 	CMP EBX, 3
-	JL reiniciar_sociavel
-	
+	JL reiniciar_emciclo
 
 	MOV EAX, colchete_abre
 	CALL print_string
@@ -782,7 +792,6 @@ fim_insere_sociavel:
 	MOV EAX, colchete_fecha
 	CALL print_string
 	XCHG ECX, EBX
-	JMP reiniciar_sociavel
 	
 reiniciar_sociavel:
 	ADD ECX, 4
@@ -791,12 +800,16 @@ reiniciar_sociavel:
 	MOV EDX, 0
 	MOV EBX, 0
 	MOV EDI, vetor_candidatos
-	MOV EAX, [vetor_entrada + ECX]
-	STOSD
-	INC EBX
-	MOV [inicio_ciclo], EAX
-	MOV EAX, [vetor_soma_divisores + ECX]
-	JMP busca_sociavel
+	JMP ja_tem_ciclo
+	
+reiniciar_emciclo:
+	XCHG ECX, EBX
+	MOV EDI, vetor_candidatos
+	MOV EAX, -1
+	MOV ECX, 10
+	REP STOSD
+	XCHG ECX, EBX
+	JMP reiniciar_sociavel
 	
 	
 ;-----------------------------------------------------------------------
@@ -891,8 +904,19 @@ check_fat_lp:
 	MOV [indice], ECX
 	CALL fatorial
 	
+	CMP EAX, -1
+	JZ check_fat_erro
 	CALL print_int
 	CALL print_nl
+	JMP check_fat_reset
+	
+check_fat_erro:
+	MOV EAX, text_erro_overflow
+	CALL print_string
+	CALL print_nl
+	JMP check_fat_reset
+	
+check_fat_reset:
 	MOV ECX, [indice]
 	ADD ECX, 4
 	CMP ECX, 40

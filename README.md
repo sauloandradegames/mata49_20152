@@ -12,25 +12,25 @@ Repositorio do trabalho pratico de MATA49 - Programacao de software basico.
 	- Adicionar funcao para reiniciar o programa
 
 - Coisas a fazer: 20 de 22
-- [X] Implementar modulo de divisor
-- [X] Implementar modulo de primo
-- [X] Implementar modulo de numero excessivo
-- [X] Implementar modulo de numero perfeito
-- [X] Implementar modulo de numero deficiente
-- [X] Implementar modulo de numero amigavel
-- [X] Implementar modulo de numero sociavel
-- [X] Implementar modulo de sequencia de fibonnaci
-- [X] Implementar modulo de fatorial
-- [X] Implementar leitura de entrada
-- [X] Implementar pre-processamento da entrada
-- [X] Implementar menu principal do programa
+- [X] _Implementar modulo de divisor_
+- [X] _Implementar modulo de primo_
+- [X] _Implementar modulo de numero excessivo_
+- [X] _Implementar modulo de numero perfeito_
+- [X] _Implementar modulo de numero deficiente_
+- [X] _Implementar modulo de numero amigavel_
+- [X] _Implementar modulo de numero sociavel_
+- [X] _Implementar modulo de sequencia de fibonnaci_
+- [X] _Implementar modulo de fatorial_
+- [X] _Implementar leitura de entrada_
+- [X] _Implementar pre-processamento da entrada_
+- [X] _Implementar menu principal do programa_
 - [ ] Criar filtro para zero e overflow numerico
-- [X] Integrar modulo de numero excessivo no asm_main
-- [X] Integrar modulo de numero perfeito no asm_main
-- [X] Integrar modulo de numero deficiente no asm_main
-- [X] Integrar modulo de numero amigavel no asm_main
-- [X] Integrar modulo de numero sociavel no asm_main
-- [X] Integrar modulo de numero primo no asm_main
-- [X] Integrar modulo de sequencia de fibonacci no asm_main
-- [X] Integrar modulo de fatorial no asm_main
+- [X] _Integrar modulo de numero excessivo no asm_main_
+- [X] _Integrar modulo de numero perfeito no asm_main_
+- [X] _Integrar modulo de numero deficiente no asm_main_
+- [X] _Integrar modulo de numero amigavel no asm_main_
+- [X] _Integrar modulo de numero sociavel no asm_main_
+- [X] _Integrar modulo de numero primo no asm_main_
+- [X] _Integrar modulo de sequencia de fibonacci no asm_main_
+- [X] _Integrar modulo de fatorial no asm_main_
 - [ ] Entregar trabalho para Alberto via email
