@@ -7,17 +7,6 @@
 ; Rodar com make
 ; ./Saulo_TrabalhoPratico
 
-; Conforme aprovado pelo professor Alberto Vianna na aula do dia 27 de abril de 2016
-; a funcao fibonacci ira imprimir a sequencia de fibonacci com os valores menores
-; ou iguais ao parametro de entrada especificado
-
-; Alguns valores de teste:
-; 12 eh excessivo
-; 10 eh deficiente
-; 28 eh perfeito
-; 220, 284 sao amigaveis
-; 12496, 14288, 15472, 14536, 14264 formam um ciclo sociavel
-
 %include "asm_io.inc"
 
 segment .data
@@ -474,43 +463,62 @@ eh_primo:
 ;-----------------------------------------------------------------------
 
 ;-----------------------------------------------------------------------
-; Imprime na tela a sequencia de fibonacci para o parametro de entrada
+; Imprime na tela a sequencia de fibonacci de N elementos
+; onde N eh o parametro de entrada
 ; Entrada:
 ;    1 valor na pilha
 ; Saida:
-;    padrao: imprime na tela sequencia de fibonacci ate o parametro de entrada.
+;    padrao: imprime na tela sequencia de fibonacci com N elementos
+;    A funcao encerra imediatamente em caso de overflow numerico
 fibonacci:
 	ENTER 4, 0
 	
-	MOV EAX, [EBP + 8]
-	CMP EAX, 0
-	JZ end
+	MOV ECX, [EBP + 8] ; Numero de elementos a imprimir
 	
-	MOV EBX, 1 ; numero atual
-	MOV ECX, 0 ; numero anterior
+	MOV EAX, 0 ; numero atual
+	MOV EBX, 0 ; numero anterior
 	MOV EDX, 0 ; numero anterior do anterior
 	
-	MOV EAX, [EBP + 8]
-	CMP EAX, 0
+	; Imprima o elemento 0
+	; Se a entrada for 0, encerre
+	CALL print_int
+	CMP ECX, 0
 	JZ end
+	
+	; Imprima o elemento 1
+	; Se a entrada for 1, encerre
+	MOV EAX, espaco
+	CALL print_string
+	MOV EAX, 1
+	CALL print_int
+	CMP ECX, 1
+	JZ end
+	
+	DEC ECX
 
 insere_fibonacci:
-	MOV EAX, EBX
-	CALL print_int
-
-	MOV EDX, ECX
-	MOV ECX, EBX
+	; Salve o valor atual e o valor anterior
+	MOV EDX, EBX ; Agora o valor atual passa a ser o valor anterior
+	MOV EBX, EAX ; e o valor anterior passa a ser o valor anterior do anterior
 	
-	MOV EBX, 0
-	ADD EBX, ECX
-	ADD EBX, EDX
-	CMP EBX, [EBP + 8]
-	JG end
-
+	; Imprima ","
 	MOV EAX, espaco
 	CALL print_string
 	
-	JMP insere_fibonacci
+	; Inicialize EAX para receber a soma dos valores
+	MOV EAX, 0
+	
+	; Efetue a soma. Se a qualquer momento a soma estourar, encerre imediatamente
+	; Imprima o resultado
+	ADD EAX, EBX
+	JO end
+	ADD EAX, EDX
+	JO end
+	CALL print_int
+	
+	; Repita ate esgotar ECX. Encerre a funcao.
+	LOOP insere_fibonacci
+	JMP end
 ;-----------------------------------------------------------------------
 
 ;-----------------------------------------------------------------------
@@ -523,25 +531,34 @@ insere_fibonacci:
 fatorial:
 	ENTER 4, 0
 	
+	; Verifique se o parametro de entrada eh 0 ou 1.
+	; Se sim, retorne 1
 	MOV EAX, [EBP + 8]
 	CMP EAX, 0
 	JZ fat_zero
 	CMP EAX, 1
 	JZ fat_zero
 	
+	; Inicialize EAX e ECX para calcular o fatorial
 	MOV EAX, 1
 	MOV ECX, [EBP + 8]
+	
 fat_lp:
+	; Calcule o fatorial de tras para frente
+	; n * (n-1) * (n-2) * ... * 3 * 2 * 1
+	; Caso haja overflow numerico, interrompa o calculo e retorne -1
 	IMUL EAX, ECX
 	JO fat_overflow
 	LOOP fat_lp
 	JMP end
 	
 fat_zero:
+	; Retorne 1 se o parametro de entrada for 0 ou 1
 	MOV EAX, 1
 	JMP end
 	
 fat_overflow:
+	; Retorne -1 se houver overflow numerico durante o calculo do fatorial
 	MOV EAX, -1
 	JMP end
 ;-----------------------------------------------------------------------
