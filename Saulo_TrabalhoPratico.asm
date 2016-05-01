@@ -96,9 +96,13 @@ lp_excessivo:
 	MOV EAX, [vetor_entrada + EDX]
 	MOV EBX, [vetor_soma_divisores + EDX]
 	
+	CMP EAX, 0
+	JZ nao_excessivo
+	
 	CMP EBX, EAX
 	JG insere_excessivo
 	
+nao_excessivo:
 	; Se nao for maior, imprima na tela uma string dizendo que entrada[EDX]
 	; nao eh um numero excessivo
 	MOV EAX, colchete_abre
@@ -153,9 +157,13 @@ lp_perfeito:
 	MOV EAX, [vetor_entrada + EDX]
 	MOV EBX, [vetor_soma_divisores + EDX]
 	
+	CMP EAX, 0
+	JZ nao_perfeito
+	
 	CMP EBX, EAX
 	JZ insere_perfeito
 	
+nao_perfeito:
 	; Se nao forem iguais, imprima string indicando que entrada[EDX]
 	; nao eh numero perfeito
 	MOV EAX, colchete_abre
@@ -212,9 +220,13 @@ lp_deficiente:
 	MOV EAX, [vetor_entrada + EDX]
 	MOV EBX, [vetor_soma_divisores + EDX]
 	
+	CMP EAX, 0
+	JZ nao_deficiente
+	
 	CMP EBX, EAX
 	JL insere_deficiente
 	
+nao_deficiente
 	; Se nao for menor, imprima string informando que entrada[EDX]
 	; nao eh numero deficiente
 	MOV EAX, colchete_abre
@@ -321,15 +333,15 @@ insere_amigavel:
 ;    1 valor em EBX
 ; Saida:
 ;    EAX = soma dos divisores de EBX
-;    EAX = 0 se EBX = 0
+;    EAX = -1 se EBX = 0
 soma_divisores:
 	ENTER 0, 0
 	
 	; Verifique se o parametro de entrada eh 0
-	; Se sim, a funcao retorna 0
+	; Se sim, a funcao retorna -1
 	; Tecnicamente, 0 nao tem divisores e deveria retornar NaN.
 	CMP EBX, 0
-	JZ encerra_somatorio
+	JZ soma_divZero
 	
 	; Salva o parametro de entrada
 	MOV [param_soma], EBX
@@ -354,6 +366,10 @@ somatorio:
 encerra_somatorio:
 	XCHG EBX, EAX         ; Transfere o resultado do somatorio para ser retornado em EAX
 	JMP end               ; Encerre a funcao
+	
+soma_divZero:
+	MOV EAX, -1
+	JMP end
 ;-----------------------------------------------------------------------
 
 ;-----------------------------------------------------------------------
